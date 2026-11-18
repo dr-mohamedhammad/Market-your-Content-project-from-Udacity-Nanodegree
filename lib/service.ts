@@ -18,6 +18,7 @@ import {
   addDays,
 } from "./learning";
 import { buildLearnerContext } from "./tutor/prompts";
+import { getLibraryLesson, type LibraryLesson } from "./curriculum";
 import { assessSession, checkVocabSentence, generateLesson, surpriseTopic, tutorTurn, weeklySummary } from "./tutor/engine";
 import { TutorError } from "./tutor/claude";
 import type { ChatMessage, Mode, Profile, Session, SessionReport, Topic, VocabEntry, VocabItem } from "./types";
@@ -84,8 +85,9 @@ export async function getDailySuggestion(tz: string) {
 // ───────────────────────── Sessions ─────────────────────────
 
 export interface StartOptions {
-  kind: "daily" | "surprise" | "custom" | "revisit";
+  kind: "daily" | "surprise" | "custom" | "revisit" | "library";
   mode?: Mode;
+  lessonId?: string;
   topic?: Topic;
   revisitOf?: string;
   tz: string;
@@ -97,6 +99,7 @@ export async function startSession(opts: StartOptions): Promise<Session> {
   let topic: Topic;
   let mode: Mode = opts.mode ?? "free";
   let revisit: Session | null = null;
+  let lesson: LibraryLesson | null = null;
 
   if (opts.kind === "daily") {
     const d = await getDailySuggestion(opts.tz);
@@ -108,6 +111,12 @@ export async function startSession(opts: StartOptions): Promise<Session> {
     if (!revisit) throw new TutorError("That lesson was not found.", 404, "not_found");
     topic = revisit.topic;
     mode = opts.mode ?? revisit.mode;
+    lesson = revisit.lessonId ? getLibraryLesson(revisit.lessonId) : null;
+  } else if (opts.kind === "library") {
+    lesson = opts.lessonId ? getLibraryLesson(opts.lessonId) : null;
+    if (!lesson) throw new TutorError("That lesson was not found.", 404, "not_found");
+    topic = { category: lesson.category, title: lesson.title, seed: `${lesson.description} Language focus: ${lesson.focus}.` };
+    mode = opts.mode ?? lesson.mode;
   } else if (opts.kind === "custom" && opts.topic?.title) {
     topic = { category: opts.topic.category || "Custom", title: opts.topic.title.slice(0, 120), seed: (opts.topic.seed || opts.topic.title).slice(0, 300) };
   } else {
@@ -117,16 +126,18 @@ export async function startSession(opts: StartOptions): Promise<Session> {
     mode = opts.mode ?? s.mode;
   }
 
-  const context = buildLearnerContext(profile, history, { mode, topic, isRevisit: !!revisit, previous: revisit });
-  const plan = await generateLesson({ context, topic, mode, level: profile.level });
+  const context = buildLearnerContext(profile, history, { mode, topic, isRevisit: !!revisit, previous: revisit, lesson });
+  const plan = await generateLesson({ context, topic, mode, level: lesson?.level ?? profile.level });
   const t = now();
   const session: Session = {
     id: randomUUID(),
     mode,
     topic,
     plan: { title: plan.title, introduction: plan.introduction, vocabulary: plan.vocabulary, roleplay: plan.roleplay, focusPoints: plan.focusPoints },
-    level: profile.level,
+    // A library lesson at another level doesn't count toward the learner's own level window.
+    level: lesson?.level ?? profile.level,
     isRevisit: !!revisit,
+    lessonId: lesson?.id ?? null,
     revisitOf: revisit?.id ?? null,
     context,
     messages: [

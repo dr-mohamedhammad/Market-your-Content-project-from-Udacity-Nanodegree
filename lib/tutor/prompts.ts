@@ -51,13 +51,23 @@ export function levelGuidance(level: Level): string {
 }
 
 /** Learner context built once per session from long-term memory. */
-export function buildLearnerContext(profile: Profile, history: Session[], extras: { mode: Mode; topic: Topic; isRevisit: boolean; previous?: Session | null }): string {
+export function buildLearnerContext(
+  profile: Profile,
+  history: Session[],
+  extras: { mode: Mode; topic: Topic; isRevisit: boolean; previous?: Session | null; lesson?: { level: Level; focus: string; description: string } | null },
+): string {
   const mistakes = topMistakes(profile, 6);
   const recent = history.filter((s) => s.status === "completed").slice(0, 8);
   const lines: string[] = [];
   lines.push(`# Session context`);
   lines.push(`- Student's name: ${profile.name || "the student"}`);
   lines.push(`- Current level: ${profile.level} (${LEVEL_INFO[profile.level].name}). ${levelGuidance(profile.level)}`);
+  if (extras.lesson) {
+    const l = extras.lesson;
+    lines.push(`- This is a LIBRARY LESSON written for level ${l.level}${l.level !== profile.level ? ` (the student is ${profile.level}; pitch your language at ${l.level} but support them if it's too hard)` : ""}. ${levelGuidance(l.level)}`);
+    lines.push(`- Language focus of this lesson: ${l.focus}. Create plenty of natural chances to use it, and prioritise corrections related to it.`);
+    lines.push(`- Lesson goal: by the end the student can: ${l.description}`);
+  }
   lines.push(`- Mode: ${extras.mode}`);
   lines.push(`- Topic: ${extras.topic.title} (category: ${extras.topic.category})`);
   lines.push(`- Completed sessions so far: ${history.filter((s) => s.status === "completed").length}`);

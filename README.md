@@ -12,6 +12,7 @@ Built with **Next.js 16 (App Router) + TypeScript + Tailwind CSS 4**. **Claude**
 |---|---|
 | **Daily conversation** | A new topic every day from 12 real-life categories (daily life, family, travel, shopping, work, pharmacy & healthcare, supply chain, news, technology & AI, education, opinions, role-plays). Recent topics aren't repeated, and roughly every 6th lesson goes back to an older, lower-scoring topic so you can see your progress. There's also **Surprise me** and **Choose my own topic**. |
 | **Lesson structure** | Title, a short introduction, 6–8 useful expressions, then a conversation where the tutor asks one question at a time, with follow-ups and a review at the end. Claude writes every lesson from your history. Nothing is scripted. |
+| **Lesson library** | A **Library** tab with a full course of 60 lessons: 12 per level for B1, B1+, B2, B2+ and C1. Each lesson has a real-life situation, a language focus (for example "Past simple", "Negotiation: conditionals for offers" or "IELTS Speaking Part 3") and a goal. Pick any lesson at any level. The tutor writes it for you, using what it remembers about you, and marks finished lessons with your best score and progress per level. A lesson above or below your level doesn't count toward your own level changes. |
 | **3 modes** | **Free conversation**, **Role play** (the tutor plays the other character: waiter, hotel receptionist, interviewer, manager, pharmacist, doctor…), and **Intensive learning** (more corrections, repetition drills, harder sentences). |
 | **Error correction** | At most one correction per turn, shown as a card: the wrong words, the natural version, and a one-line reason. Categories are grammar / vocabulary / sentence structure / naturalness / pronunciation (a guess from the transcript). The tutor fixes recurring and important mistakes first, may invite you to **say it again**, then carries on with the conversation. |
 | **Voice** | Tap the mic, speak, and the tutor answers aloud. Every reply has a **Replay** button, and you can see the full transcript. **Hands-free mode** listens again automatically after the tutor speaks. You can type instead at any time. |
@@ -147,6 +148,7 @@ Model `claude-opus-5-5`: **$4 / million input tokens, $20 / million output token
 
 ```
 app/
+  library/page.tsx       Lesson library (lib/curriculum.ts: 60 lesson briefs, B1→C1)
   page.tsx               Dashboard (today's topic, continue card, stats, charts, focus areas, weekly summary)
   session/[id]/page.tsx  Conversation screen (mic, transcript, corrections, replay, lesson panel) + report
   history | vocabulary | progress | settings | login

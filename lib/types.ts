@@ -91,6 +91,8 @@ export interface Session {
   plan: LessonPlan;
   level: Level; // level at the time of the session
   isRevisit: boolean;
+  /** Set when the session was started from the lesson library. */
+  lessonId?: string | null;
   /** Learner context frozen when the session starts (kept byte-identical so prompt caching works). */
   context: string;
   revisitOf?: string | null;
@@ -158,6 +160,7 @@ export interface VocabEntry extends VocabItem {
 
 export interface SessionSummary {
   id: string;
+  lessonId: string | null;
   title: string;
   category: string;
   mode: Mode;

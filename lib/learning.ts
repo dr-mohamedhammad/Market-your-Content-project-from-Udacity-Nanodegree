@@ -81,6 +81,7 @@ export function summarize(s: Session): SessionSummary {
   const lastUser = [...visible].reverse().find((m) => m.role === "user");
   return {
     id: s.id,
+    lessonId: s.lessonId ?? null,
     title: s.plan.title,
     category: s.topic.category,
     mode: s.mode,
