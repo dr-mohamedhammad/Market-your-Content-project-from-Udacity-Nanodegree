@@ -2,13 +2,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useApp } from "./Providers";
-import { IconBook, IconChart, IconHistory, IconHome, IconSettings } from "./Icons";
+import { IconBook, IconChart, IconHistory, IconHome, IconLibrary, IconSettings } from "./Icons";
 
 export function AppShell({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) {
   const { t } = useApp();
   const path = usePathname();
   const items = [
     { href: "/", label: t.home, Icon: IconHome },
+    { href: "/library", label: t.library, Icon: IconLibrary },
     { href: "/history", label: t.history, Icon: IconHistory },
     { href: "/vocabulary", label: t.vocabulary, Icon: IconBook },
     { href: "/progress", label: t.progress, Icon: IconChart },
@@ -30,9 +31,9 @@ export function AppShell({ children, wide = false }: { children: React.ReactNode
       </aside>
       <main className={`flex-1 mx-auto w-full ${wide ? "max-w-5xl" : "max-w-3xl"} px-4 pt-5 pb-28 md:pb-10 md:px-8`}>{children}</main>
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-soft safe-bottom" style={{ background: "color-mix(in srgb, var(--card) 92%, transparent)", backdropFilter: "blur(12px)" }}>
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-6">
           {items.map(({ href, label, Icon }) => (
-            <Link key={href} href={href} className={`flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${active(href) ? "text-brand-600 dark:text-brand-400" : "muted"}`}>
+            <Link key={href} href={href} className={`flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium truncate ${active(href) ? "text-brand-600 dark:text-brand-400" : "muted"}`}>
               <Icon className="w-6 h-6" />
               {label}
             </Link>
