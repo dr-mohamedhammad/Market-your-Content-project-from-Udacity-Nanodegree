@@ -28,3 +28,8 @@ create index if not exists tutor_vocab_user_added on public.tutor_vocab (user_id
 alter table public.tutor_profiles enable row level security;
 alter table public.tutor_sessions enable row level security;
 alter table public.tutor_vocab    enable row level security;
+
+-- Newer Supabase projects no longer grant table access to the API roles automatically.
+-- The app uses only the server-side service_role, so grant it (and nothing to anon/authenticated).
+grant usage on schema public to service_role;
+grant all on table public.tutor_profiles, public.tutor_sessions, public.tutor_vocab to service_role;
